@@ -1,0 +1,100 @@
+classDiagram
+    class User {
+      +UUID id
+      +string name
+      +string email
+      +UserRole role
+      +bool active
+    }
+
+    class Guest {
+      +UUID id
+      +string fullName
+      +string phone
+      +string email
+      +string identityReference
+      +string notes
+    }
+
+    class RoomType {
+      +UUID id
+      +string name
+      +string description
+      +int maxOccupancy
+      +decimal baseRate
+    }
+
+    class Room {
+      +UUID id
+      +string roomNumber
+      +int floor
+      +RoomOperationalStatus operationalStatus
+      +HousekeepingStatus housekeepingStatus
+      +string notes
+    }
+
+    class Reservation {
+      +UUID id
+      +string confirmationCode
+      +date arrivalDate
+      +date departureDate
+      +int adultCount
+      +int childCount
+      +ReservationStatus status
+      +ReservationSource source
+      +datetime createdAt
+      +confirm()
+      +cancel()
+      +markNoShow()
+      +checkIn()
+      +checkOut()
+    }
+
+    class ReservationRoom {
+      +UUID id
+      +date assignedFrom
+      +date assignedTo
+      +decimal nightlyRate
+      +AssignmentStatus status
+    }
+
+    class HousekeepingTask {
+      +UUID id
+      +HousekeepingTaskType type
+      +HousekeepingTaskStatus status
+      +datetime claimedAt
+      +datetime completedAt
+      +string notes
+      +claim()
+      +complete()
+    }
+
+    class MaintenanceBlock {
+      +UUID id
+      +date startsOn
+      +date endsOn
+      +string reason
+      +MaintenanceStatus status
+    }
+
+    class AuditLog {
+      +UUID id
+      +string entityType
+      +UUID entityId
+      +string action
+      +datetime occurredAt
+      +string details
+    }
+
+    Guest "1" --> "0..*" Reservation : makes
+    Reservation "1" --> "1..*" ReservationRoom : contains
+    ReservationRoom "0..*" --> "1" Room : assigns
+    RoomType "1" --> "0..*" Room : classifies
+    Room "1" --> "0..*" HousekeepingTask : generates
+    Room "1" --> "0..*" MaintenanceBlock : has
+    User "1" --> "0..*" HousekeepingTask : performs
+    User "1" --> "0..*" AuditLog : causes
+    Reservation "1" --> "0..*" AuditLog : changes
+
+    note for Reservation "Date interval uses arrival inclusive and departure exclusive semantics."
+    note for Room "Operational and housekeeping statuses are intentionally separate."

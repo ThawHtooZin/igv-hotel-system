@@ -1,0 +1,43 @@
+sequenceDiagram
+    actor Staff as Front-desk staff
+    participant UI as Front-desk UI
+    participant ReservationService
+    participant AvailabilityService
+    participant DB as Hotel database
+    participant Audit as Audit log
+
+    Staff->>UI: Enter guest, dates, occupancy, room type
+    UI->>ReservationService: createReservation(request)
+    ReservationService->>AvailabilityService: findAvailableRooms(dates, type)
+    AvailabilityService->>DB: Query rooms, reservations, maintenance blocks
+    DB-->>AvailabilityService: Candidate rooms
+    AvailabilityService-->>ReservationService: Available rooms
+
+    alt No available room
+        ReservationService-->>UI: Reject with availability error
+        UI-->>Staff: Show alternatives or change dates
+    else Room available
+        ReservationService->>DB: Begin transaction
+        ReservationService->>DB: Create guest if needed
+        ReservationService->>DB: Create reservation
+        ReservationService->>DB: Create room assignment
+        ReservationService->>DB: Commit transaction
+        ReservationService->>Audit: Record reservation created
+        ReservationService-->>UI: Confirmation code and reservation
+        UI-->>Staff: Show confirmation
+    end
+
+    Staff->>UI: Select arriving reservation and check in
+    UI->>ReservationService: checkIn(reservationId)
+    ReservationService->>DB: Lock reservation and assigned room
+    ReservationService->>DB: Verify status and room readiness
+    alt Invalid state or room not ready
+        DB-->>ReservationService: Validation failure
+        ReservationService-->>UI: Reject check-in with reason
+    else Ready
+        ReservationService->>DB: Set reservation Checked-in
+        ReservationService->>DB: Set room Occupied
+        ReservationService->>Audit: Record check-in
+        ReservationService-->>UI: Check-in successful
+        UI-->>Staff: Show room and guest details
+    end

@@ -1,0 +1,47 @@
+flowchart LR
+    Guest([Guest])
+    FrontDesk([Front-desk staff])
+    Housekeeping([Housekeeping staff])
+    Manager([Hotel manager])
+    Admin([System administrator])
+
+    subgraph HMS[Hotel Management System]
+      UC1((Search room availability))
+      UC2((Create or edit reservation))
+      UC3((Assign room))
+      UC4((Check in guest))
+      UC5((Check out guest))
+      UC6((Cancel or mark no-show))
+      UC7((Manage rooms and room types))
+      UC8((Process housekeeping tasks))
+      UC9((Block room for maintenance))
+      UC10((View operations dashboard))
+      UC11((Manage users and roles))
+      UC12((Write audit record))
+    end
+
+    FrontDesk --> UC1
+    FrontDesk --> UC2
+    FrontDesk --> UC3
+    FrontDesk --> UC4
+    FrontDesk --> UC5
+    FrontDesk --> UC6
+    FrontDesk --> UC10
+    Housekeeping --> UC8
+    Manager --> UC7
+    Manager --> UC9
+    Manager --> UC10
+    Admin --> UC11
+    Guest -. represented by .-> UC2
+
+    UC2 -. includes .-> UC1
+    UC3 -. includes .-> UC1
+    UC4 -. includes .-> UC3
+    UC2 -. records .-> UC12
+    UC3 -. records .-> UC12
+    UC4 -. records .-> UC12
+    UC5 -. records .-> UC12
+    UC6 -. records .-> UC12
+    UC7 -. records .-> UC12
+    UC8 -. records .-> UC12
+    UC9 -. records .-> UC12

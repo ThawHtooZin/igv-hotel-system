@@ -1,0 +1,22 @@
+stateDiagram-v2
+    [*] --> Available
+
+    Available --> Reserved: reservation assigned
+    Reserved --> Occupied: guest checked in
+    Reserved --> Available: reservation cancelled/no-show
+    Occupied --> Dirty: guest checked out
+    Dirty --> Cleaning: task claimed
+    Cleaning --> Inspected: cleaning completed
+    Inspected --> Available: inspection passed
+    Inspected --> Cleaning: inspection failed
+
+    Available --> UnderMaintenance: maintenance issue/block
+    Reserved --> UnderMaintenance: urgent maintenance block
+    UnderMaintenance --> Available: maintenance completed
+
+    state Available {
+      [*] --> Clean
+    }
+    state Dirty {
+      [*] --> NeedsCleaning
+    }
